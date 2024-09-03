@@ -1,6 +1,5 @@
 import { ethers } from "hardhat";
 import MerkleTree from "merkletreejs";
-import path from "path";
 import csvParser from "csv-parser";
 const fs = require("fs");
 import keccak256 from "keccak256";

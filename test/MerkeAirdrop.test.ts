@@ -21,11 +21,10 @@ describe('MerkleAirdrop', function () {
         const merkleRoot = await generateMerkleRoot();
         
         const merkleAirdrop = await MerkleAirdrop.deploy(token, merkleRoot);  
-        const rewardAmount = ethers.parseEther("100.0");
+        const rewardAmount = ethers.parseEther("1000.0");
         
 
         await token.transfer(await merkleAirdrop.getAddress(), rewardAmount);
-        const contractBalance = await token.balanceOf(await merkleAirdrop.getAddress());
 
         return { token, merkleAirdrop, merkleRoot, owner, user1, user2, user3, user4, user5, user6, user7 };
     }
@@ -33,6 +32,7 @@ describe('MerkleAirdrop', function () {
 
   it('Should deploy with the correct merkle root', async function () {
     const { merkleAirdrop, merkleRoot } = await loadFixture(deployMerkleAirdropFixture);
+    expect( merkleAirdrop).to.be.ok;
     expect(await merkleAirdrop.merkleRoot()).to.equal(merkleRoot);
   });
 
@@ -40,9 +40,6 @@ describe('MerkleAirdrop', function () {
     const { merkleAirdrop, user1, token  } = await loadFixture(deployMerkleAirdropFixture);
     const amount = ethers.parseEther("100.0").toString();
     const proof = await generateMerkleProof( user1.address, amount);
-    // console.log(`Address: ${user1.address}`);
-    // console.log(`Amount: ${amount}`);
-    // console.log(`Proof: ${proof}`);
     await merkleAirdrop.connect(user1).claim(user1.address, amount, proof);
     
 
