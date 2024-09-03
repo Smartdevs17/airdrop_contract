@@ -12,7 +12,7 @@ async function generateMerkleRoot(): Promise<string> {
 
     fs.createReadStream('addresses.csv')
       .pipe(csvParser())
-      .on('data', (row: { address: string; amount: string }) => {  // Specify the type for 'row'
+      .on('data', (row: { address: string; amount: string }) => {  
         const address = row.address;
         const amount = row.amount;
         const leaf = keccak256(
@@ -28,57 +28,14 @@ async function generateMerkleRoot(): Promise<string> {
         const roothash = tree.getHexRoot();
         console.log('Merkle Root:', roothash);
 
-        resolve(roothash);  // Resolve the promise with the merkle root
+        resolve(roothash);  
       })
-      .on('error', reject); // Reject the promise if there's an error
+      .on('error', reject); 
   });
 }
 
-// Function to generate merkle proof
-async function generateMerkleProof(address: string, amount: string): Promise<string[]> {
-  return new Promise((resolve, reject) => {
-    generateMerkleRoot()
-      .then((merkleRoot) => {
-        const targetLeaf = keccak256(
-          ethers.solidityPacked(["address", "uint256"], [address, amount])
-        );
-
-        const tree = new MerkleTree([targetLeaf], keccak256, {
-          sortPairs: true,
-        });
-        const proof = tree.getHexProof(targetLeaf);
-        resolve(proof);
-      })
-      .catch(reject);
-  });
-}
-
-// async function generateMerkleProofWithRoot(root: string, targetAddress: string, targetAmount: string, userData: { address: string, amount: string }[]): Promise<string[]> {
-//   return new Promise((resolve, reject) => {
-//     console.log(`Starting to generate proof for address: ${targetAddress}, amount: ${targetAmount}`);
-
-//     let results: Buffer[] = userData.map((user) => 
-//       keccak256(
-//         ethers.solidityPacked(["address", "uint256"], [user.address, user.amount])
-//       )
-//     );
-
-//     const tree = new MerkleTree(results, keccak256, {
-//       sortPairs: true,
-//     });
-
-//     const targetLeaf = keccak256(
-//       ethers.solidityPacked(["address", "uint256"], [targetAddress, targetAmount])
-//     );
-
-//     const proof = tree.getHexProof(targetLeaf);
-//     console.log(proof);
-    
-//     resolve(proof);
-//   });
-// }
-
-async function generateMerkleProofWithRoot(root: string, targetAddress: string, targetAmount: string, ): Promise<string[]> {
+// The function then generates a proof for the target address and amount, and returns the proof.
+async function generateMerkleProof( targetAddress: string, targetAmount: string, ): Promise<string[]> {
   const userData = await getUserDataFromCSV();
   
   return new Promise((resolve, reject) => {
@@ -105,13 +62,14 @@ async function generateMerkleProofWithRoot(root: string, targetAddress: string, 
   });
 }
 
+// It first fetches the user data from the CSV file, then constructs a Merkle tree using the user data.
 async function getUserDataFromCSV(): Promise<{ address: string, amount: string }[]> {
   return new Promise((resolve, reject) => {
     let userData: { address: string, amount: string }[] = [];
 
     fs.createReadStream('addresses.csv')
       .pipe(csvParser())
-      .on('data', (row: { address: string; amount: string }) => {  // Specify the type for 'row'
+      .on('data', (row: { address: string; amount: string }) => { 
         userData.push({ address: row.address, amount: row.amount });
       })
       .on('end', () => {
@@ -121,24 +79,5 @@ async function getUserDataFromCSV(): Promise<{ address: string, amount: string }
   });
 }
 
-async function generateMerkleRootFromArray(data: { address: string, amount: string }[]): Promise<string> {
-  return new Promise((resolve, reject) => {
-    let results: Buffer[] = data.map((user) => 
-      keccak256(
-        ethers.solidityPacked(["address", "uint256"], [user.address, user.amount])
-      )
-    );
 
-    const tree = new MerkleTree(results, keccak256, {
-      sortPairs: true,
-    });
-
-    const roothash = tree.getHexRoot();
-    console.log('Merkle Root:', roothash);
-
-    resolve(roothash);  // Resolve the promise with the merkle root
-  });
-}
-
-export default { generateMerkleRoot, generateMerkleProof, generateMerkleProofWithRoot, getUserDataFromCSV, generateMerkleRootFromArray };
-// export default { generateMerkleProofWithRoot, generateMerkleRootFromArray };
+export default { generateMerkleRoot, generateMerkleProof, };

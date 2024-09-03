@@ -1,6 +1,6 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import merkle from "../../merkle";
-const { generateMerkleRoot, generateMerkleProof } = merkle;
+const { generateMerkleRoot } = merkle;
 
 async function setupMerkleAirdropModule() {
     // Generate the merkle root asynchronously

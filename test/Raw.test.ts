@@ -2,8 +2,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import merkle from "../merkle";
-// const { generateMerkleRoot, generateMerkleProof, generateMerkleRootFromArray, generateMerkleProofWithRoot } = merkle;
-const { generateMerkleRootFromArray, generateMerkleProofWithRoot } = merkle;
+const { generateMerkleRoot, generateMerkleProof } = merkle;
 
 describe('MerkleAirdrop', function () {
     async function deployTokenFixture() {
@@ -28,7 +27,7 @@ describe('MerkleAirdrop', function () {
             
         ];
         // const hash = await generateMerkleRootFromArray(userData);
-        const hash = await generateMerkleRootFromArray(userData);
+        const hash = await generateMerkleRoot();
         
         const merkleRoot =  hash;        
         const merkleAirdrop = await MerkleAirdrop.deploy(token, merkleRoot);  
@@ -52,7 +51,7 @@ describe('MerkleAirdrop', function () {
     const { merkleAirdrop, hash, userData, user1, token  } = await loadFixture(deployMerkleAirdropFixture);
     const amount = ethers.parseEther("100.0").toString();
     // const proof = await generateMerkleProofWithRoot(hash, user1.address, amount, userData);
-    const proof = await generateMerkleProofWithRoot(hash, user1.address, amount);
+    const proof = await generateMerkleProof(user1.address, amount);
     console.log(`Address: ${user1.address}`);
     console.log(`Amount: ${amount}`);
     console.log(`Proof: ${proof}`);
@@ -94,3 +93,69 @@ describe('MerkleAirdrop', function () {
 //     await expect(merkleAirdrop.connect(user2).claim(user2.address, amount, proof)).to.be.revertedWith('Invalid proof');
   });
 });
+
+
+// async function generateMerkleProofWithRoot(root: string, targetAddress: string, targetAmount: string, userData: { address: string, amount: string }[]): Promise<string[]> {
+//   return new Promise((resolve, reject) => {
+//     console.log(`Starting to generate proof for address: ${targetAddress}, amount: ${targetAmount}`);
+
+//     let results: Buffer[] = userData.map((user) => 
+//       keccak256(
+//         ethers.solidityPacked(["address", "uint256"], [user.address, user.amount])
+//       )
+//     );
+
+//     const tree = new MerkleTree(results, keccak256, {
+//       sortPairs: true,
+//     });
+
+//     const targetLeaf = keccak256(
+//       ethers.solidityPacked(["address", "uint256"], [targetAddress, targetAmount])
+//     );
+
+//     const proof = tree.getHexProof(targetLeaf);
+//     console.log(proof);
+    
+//     resolve(proof);
+//   });
+// }
+
+
+// // Function to generate merkle proof
+// async function generateMerkleProof(address: string, amount: string): Promise<string[]> {
+//   return new Promise((resolve, reject) => {
+//     generateMerkleRoot()
+//       .then(() => {
+//         const targetLeaf = keccak256(
+//           ethers.solidityPacked(["address", "uint256"], [address, amount])
+//         );
+
+//         const tree = new MerkleTree([targetLeaf], keccak256, {
+//           sortPairs: true,
+//         });
+//         const proof = tree.getHexProof(targetLeaf);
+//         resolve(proof);
+//       })
+//       .catch(reject);
+//   });
+// }
+
+
+// async function generateMerkleRootFromArray(data: { address: string, amount: string }[]): Promise<string> {
+//   return new Promise((resolve, reject) => {
+//     let results: Buffer[] = data.map((user) => 
+//       keccak256(
+//         ethers.solidityPacked(["address", "uint256"], [user.address, user.amount])
+//       )
+//     );
+
+//     const tree = new MerkleTree(results, keccak256, {
+//       sortPairs: true,
+//     });
+
+//     const roothash = tree.getHexRoot();
+//     console.log('Merkle Root:', roothash);
+
+//     resolve(roothash); 
+//   });
+// }
